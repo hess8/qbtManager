@@ -35,3 +35,4 @@ If you want to clear the list once, run the script `clear_once.py`.  It needs on
 
 ## Credit
 This is further development of Od1gree/btDownloadManager, which doesn't appear to be maintained. My pull requests to add features and fix bugs haven't been addressed.
+
