@@ -53,7 +53,7 @@ def _post_url(url, content):
 
 class ClientFilter:
 
-    def __init__(self, url='localhost', port=8080, file=None, https=False, unconditional=False):
+    def __init__(self, url='localhost', port=8080, https=False, unconditional=False):
         if https:
             self.url_port = "https://" + url + ":" + str(port)
         else:
@@ -62,21 +62,26 @@ class ClientFilter:
         if unconditional:
             self.unconditional = True
         self.torrents_to_check = {}
-        self.string_list = []
+        self.clients_list = []
+        self.countries_list = []
         self.n_banned = None
         self.config_json = None
-        if file:
-            try:
-                filter_file = open(file, "rt")
-                for line in filter_file:
-                    self.string_list.append(line.strip())
-            except Exception as e:
-                print(str(e) + "\n input File error")
-                exit(0)
-        else:
-            self.string_list = ['XL0012', 'Xunlei', 'dandan']
-            #self.string_list = ['XL0012', 'Xunlei', 'dandan', 'Xfplay']
-
+        clients_file = 'clients_to_block.txt'
+        countries_file = 'countries_to_block.txt'
+        try:
+            clients_block = open(clients_file, "rt")
+            for line in clients_block:
+                self.clients_list.append(line.strip())
+        except Exception as e:
+            print(str(e) + "\n Error reading {}".format(clients_file))
+            exit(0)
+        try:
+            countries_block = open(countries_file, "rt")
+            for line in countries_block:
+                self.countries_list.append(line.strip())
+        except Exception as e:
+            print(str(e) + "\n Error reading {}".format(countries_file))
+            exit(0)
         print('connecting to server ' + self.url_port)
 
     def get_torrents_to_check(self):
@@ -102,6 +107,12 @@ class ClientFilter:
         self.post_config(self.config_json)
         print('Cleared all banned IPs from qBittorrent')
 
+    def output_blocked_IP(self,peer):
+        time_str = time.strftime("[%Y-%m-%d %H:%M:%S]", time.localtime())
+        self.n_banned += 1
+        print('{} Total: {} banned {} client name: {} country: {}'.format(time_str, self.n_banned, peer['ip'],
+                                                                          peer['client'], peer['country']))
+
     def filter(self):
         """
         Get all the connected peers using torrent hash list and ban the matched peer.
@@ -113,13 +124,19 @@ class ClientFilter:
             if torrent['hash'] in self.torrents_to_check:
                 peers = json.loads(self._get_peers_list(torrent['hash']))['peers']
                 for ip_port in peers:
-                    for xl in self.string_list:
-                        if xl in peers[ip_port]['client']:
+                    peer = peers[ip_port]
+                    ip = peer['ip']
+                    for client in self.clients_list:
+                        if client in peer['client'] and ip not in banned_ip_str:
                             banned_ip_str += '\n'
-                            banned_ip_str += peers[ip_port]['ip']
-                            time_str = time.strftime("[%Y-%m-%d %H:%M:%S]", time.localtime())
-                            self.n_banned += 1
-                            print('{} Total: {} banned {} client name: {} '.format(time_str, self.n_banned, peers[ip_port]['ip'], peers[ip_port]['client']))
+                            banned_ip_str += ip
+                            self.output_blocked_IP(peer)
+                    for country in self.countries_list:
+                        if country in peer['country'] and ip not in banned_ip_str:
+                            banned_ip_str += '\n'
+                            banned_ip_str += ip
+                            self.output_blocked_IP(peer)
+
             self.config_json['banned_IPs'] = banned_ip_str
             self.post_config(self.config_json)
 
@@ -148,6 +165,14 @@ class ClientFilter:
             print('clear time interval is {} hr'.format(round(clear_hours,digits)))
         if self.unconditional:
             print('-x is set: blocks clients regardless of leeching status')
+        if len(self.clients_list) > 0:
+            print('\nClient names to block:')
+            for client in self.clients_list:
+                print('\t{}'.format(client))
+        if len(self.countries_list) > 0:
+            print('\nCountries to block:')
+            for country in self.countries_list:
+                print('\t{}'.format(country))
         print()
         self.config_json = self.get_config()
         banned_ip_str = self.config_json["banned_IPs"]
@@ -161,7 +186,6 @@ class ClientFilter:
                 entries_str == 'entry'
             print('\nBanned IPs list has {} {}\n'.format(self.n_banned,entries_str))
             self.config_json['banned_IPs'] = banned_ip_str
-
 
         i_cycle_clear = 0
         i_cycle_filter = 0
@@ -185,8 +209,6 @@ if __name__ == '__main__':
                         help='port number. Default=8080')
     parser.add_argument('-t', default=10,  type=int,
                         help='time interval between filter checks')
-    parser.add_argument('-f', default=None, type=str,
-                        help='path to the string-filter file. Each line contains a string. Default=None')
     parser.add_argument('-s', default=False, action="store_true",
                         help='use https protocol. Default=http')
     parser.add_argument('-c', default=None, type=float,
@@ -195,5 +217,5 @@ if __name__ == '__main__':
                         help='blocks clients unconditionally regardless of leeching status')
 
     config = parser.parse_args()
-    f = ClientFilter(url=config.u, port=config.p, file=config.f, https=config.s, unconditional=config.x)
+    f = ClientFilter(url=config.u, port=config.p, https=config.s, unconditional=config.x)
     f.start(filter_time_cycle=config.t, clear_hours=config.c)
