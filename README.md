@@ -38,4 +38,4 @@ If you want to clear the list just once, run the script `clear_once.py`.  It nee
 Create a file with a string on each line that contains part of the name of the client you want to filter.  Or edit the sample file `my_clients_to_filter.txt` and use it.
 
 ## Credit
-Much of this code is from Od1gree/btDownloadManager, which doesn't appear to be maintained. My pull requests to add features and fix bugs haven't been addressed).
+Much of this code is from Od1gree/btDownloadManager, which doesn't appear to be maintained. My pull requests to add features and fix bugs haven't been addressed.
