@@ -34,5 +34,4 @@ You can set `-c` the optional time interval between clearing to any numberof hou
 If you want to clear the list once, run the script `clear_once.py`.  It needs only the flags `-u` and `-p`
 
 ## Credit
-This is further development of Od1gree/btDownloadManager, which doesn't appear to be maintained. My pull requests to add features and fix bugs haven't been addressed.
-
+This is further development of Od1gree/btDownloadManager, which doesn't appear to be maintained.
