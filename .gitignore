@@ -1,0 +1,8 @@
+# IntelliJ project files
+.idea
+.DS_Store
+*.iml
+out
+gen
+test.py
+/__pycache__/
