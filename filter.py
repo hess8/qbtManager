@@ -5,7 +5,7 @@ their files, such as '-XL0012-' aka '迅雷' in Chinese.
 The API documents referred to in this URL:
 https://github.com/qbittorrent/qBittorrent/wiki/Web-API-Documentation#set-application-preferences
 """
-
+import os,sys
 from urllib import request
 import json
 import time
@@ -201,6 +201,7 @@ class ClientFilter:
                 time.sleep(t_cycle_remaining)
 
 if __name__ == '__main__':
+    os.chdir(sys.path[0])
     parser = argparse.ArgumentParser(description='Ban bad peers in qBittorrent connections.',
                                      epilog='eg: python3 filter.py -u localhost -p 8080 -t 10')
     parser.add_argument('-u', default='localhost',

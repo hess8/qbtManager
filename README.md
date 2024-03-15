@@ -1,5 +1,5 @@
 # qbtManager
-A python script to manage qBittorrent downloads.  Blocks IP addresses by client name or country, and checking leeching.
+A python script to manage qBittorrent downloads.  Blocks IP addresses by client name or country, and checks leeching.
 
 ## Features
 * Block IP addresses based on country and/or client name
