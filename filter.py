@@ -127,7 +127,7 @@ class ClientFilter:
                     peer = peers[ip_port]
                     ip = peer['ip']
                     for client in self.clients_list:
-                        if client in peer['client'] and ip not in banned_ip_str:
+                        if client.lower() in peer['client'].lower() and ip not in banned_ip_str:
                             banned_ip_str += '\n'
                             banned_ip_str += ip
                             self.output_blocked_IP(peer)

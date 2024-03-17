@@ -14,7 +14,7 @@ A python script to manage qBittorrent downloads.  Blocks IP addresses by client 
 2. Set *IP Address* and *Port*, for example `localhost` and `8080`.
 3. Set your own *Username* and *Password*.
 4. Check the config box "Bypass authentication for clients on localhost" to let the script work without a password.
-5. Edit `clients_to_block.txt`, which contains some client names.  Each line is a substring of a client name you might block.  Remove names if you don't want them blocked, and add your own.
+5. Edit `clients_to_block.txt`, which contains some client names.  Each line is a substring of a client name you might block. Case insensitive. Remove names if you don't want them blocked, and add your own.
 6. To block by country, add to `countries_to_block.txt`.  Each line is a substring of the name (or entire name) of a country you might block.  If you don't want to block by client name, the file should be empty.
 7. On the computer running qBittorrent, run the script `filter.py` with required flags `-u`, `-p`, and `-t`.  For example `python3 filter.py -u localhost -p 8080 -t 10`.
 
