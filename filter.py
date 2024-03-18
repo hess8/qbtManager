@@ -4,6 +4,7 @@ their files, such as '-XL0012-' aka '迅雷' in Chinese.
 
 The API documents referred to in this URL:
 https://github.com/qbittorrent/qBittorrent/wiki/Web-API-Documentation#set-application-preferences
+https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)
 """
 import os,sys
 from urllib import request
@@ -51,6 +52,17 @@ def _post_url(url, content):
 
     request.urlopen(request.Request(url, str.encode(content)))
 
+def create_list(file,newlist):
+    try:
+        f = open(file, "rt")
+        lines = f.readlines()
+        for line in lines:
+            newlist.append(line.strip())
+        return newlist
+    except Exception as e:
+        print(str(e) + "\n Error reading {}".format(file))
+        exit(0)
+
 class ClientFilter:
 
     def __init__(self, url='localhost', port=8080, https=False, unconditional=False):
@@ -63,25 +75,14 @@ class ClientFilter:
             self.unconditional = True
         self.torrents_to_check = {}
         self.clients_list = []
-        self.countries_list = []
+        self.countries_watch = []
+        self.countries_block = []
+        self.watched = []
         self.n_banned = None
         self.config_json = None
-        clients_file = 'clients_to_block.txt'
-        countries_file = 'countries_to_block.txt'
-        try:
-            clients_block = open(clients_file, "rt")
-            for line in clients_block:
-                self.clients_list.append(line.strip())
-        except Exception as e:
-            print(str(e) + "\n Error reading {}".format(clients_file))
-            exit(0)
-        try:
-            countries_block = open(countries_file, "rt")
-            for line in countries_block:
-                self.countries_list.append(line.strip())
-        except Exception as e:
-            print(str(e) + "\n Error reading {}".format(countries_file))
-            exit(0)
+        self.clients_list = create_list('clients_to_block.txt', self.clients_list)
+        self.countries_watch = create_list('countries_to_watch.txt', self.countries_watch)
+        self.countries_block = create_list('countries_to_block.txt', self.countries_block)
         print('connecting to server ' + self.url_port)
 
     def get_torrents_to_check(self):
@@ -107,6 +108,13 @@ class ClientFilter:
         self.post_config(self.config_json)
         print('Cleared all banned IPs from qBittorrent')
 
+    def output_watched(self,peer,torrent):
+        time_str = time.strftime("[%Y-%m-%d %H:%M:%S]", time.localtime())
+        file = os.path.split(torrent['content_path'])[1]
+        watch_str = '{} {} {}'.format(peer['country'], file, peer['ip'])
+        if watch_str not in self.watched:
+            self.watched.append(watch_str)
+            print('{} Watched | \t{} | \t{} | \t{} | \t{} '.format(time_str, file, peer['country'], peer['ip'], peer['client']))
     def output_blocked_IP(self,peer):
         time_str = time.strftime("[%Y-%m-%d %H:%M:%S]", time.localtime())
         self.n_banned += 1
@@ -131,11 +139,14 @@ class ClientFilter:
                             banned_ip_str += '\n'
                             banned_ip_str += ip
                             self.output_blocked_IP(peer)
-                    for country in self.countries_list:
+                    for country in self.countries_block:
                         if country in peer['country'] and ip not in banned_ip_str:
                             banned_ip_str += '\n'
                             banned_ip_str += ip
                             self.output_blocked_IP(peer)
+                    for country in self.countries_watch:
+                        if country in peer['country']:
+                            self.output_watched(peer,torrent)
 
             self.config_json['banned_IPs'] = banned_ip_str
             self.post_config(self.config_json)
@@ -169,9 +180,13 @@ class ClientFilter:
             print('\nClient names to block:')
             for client in self.clients_list:
                 print('\t{}'.format(client))
-        if len(self.countries_list) > 0:
+        if len(self.countries_watch) > 0:
+            print('\nCountries to watch:')
+            for country in self.countries_watch:
+                print('\t{}'.format(country))
+        if len(self.countries_block) > 0:
             print('\nCountries to block:')
-            for country in self.countries_list:
+            for country in self.countries_block:
                 print('\t{}'.format(country))
         print()
         self.config_json = self.get_config()
