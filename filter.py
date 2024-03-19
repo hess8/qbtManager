@@ -114,7 +114,7 @@ class ClientFilter:
         watch_str = '{} {} {}'.format(peer['country'], file, peer['ip'])
         if watch_str not in self.watched:
             self.watched.append(watch_str)
-            print('{} Watched | \t{} | \t{} | \t{} | \t{} '.format(time_str, file, peer['country'], peer['ip'], peer['client']))
+            print('{} Watched | {} | \t\t{} | \t\t{} | {} '.format(time_str, file.rjust(15), peer['country'].rjust(20),  peer['client'].rjust(25), peer['ip']))
     def output_blocked_IP(self,peer):
         time_str = time.strftime("[%Y-%m-%d %H:%M:%S]", time.localtime())
         self.n_banned += 1
@@ -145,8 +145,9 @@ class ClientFilter:
                             banned_ip_str += ip
                             self.output_blocked_IP(peer)
                     for country in self.countries_watch:
-                        if country in peer['country']:
+                        if country in peer['country'] or peer['client'] == '':
                             self.output_watched(peer,torrent)
+
 
             self.config_json['banned_IPs'] = banned_ip_str
             self.post_config(self.config_json)
@@ -155,7 +156,7 @@ class ClientFilter:
         server_url = self.url_port + "/api/v2/sync/torrentPeers?rid=0&hash=" + torrent_hash
         return _get_url(server_url)
 
-    def start(self, filter_time_cycle=10, clear_hours=None):
+    def loop(self, filter_time_cycle=10, clear_hours=None):
         """
         Run a while true loop to ban matched ip with certain time interval.
         :param torrent_time_cycle: Time interval in sec to check the torrent list.
@@ -234,4 +235,4 @@ if __name__ == '__main__':
 
     config = parser.parse_args()
     f = ClientFilter(url=config.u, port=config.p, https=config.s, unconditional=config.x)
-    f.start(filter_time_cycle=config.t, clear_hours=config.c)
+    f.loop(filter_time_cycle=config.t, clear_hours=config.c)
