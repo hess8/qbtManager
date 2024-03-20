@@ -167,7 +167,7 @@ class ClientFilter:
         start_time = time.perf_counter()
         def t():
             return round(time.perf_counter() - start_time, 1)
-        print('filter time interval is {} sec'.format(filter_time_cycle))
+        print('\nFilter time interval is {} sec'.format(filter_time_cycle))
         clear_time_cycle = None
         if clear_hours:
             clear_time_cycle = clear_hours * 3600
@@ -176,7 +176,7 @@ class ClientFilter:
             else: digits = 3
             print('clear time interval is {} hr'.format(round(clear_hours,digits)))
         if self.unconditional:
-            print('-x is set: blocks clients regardless of leeching status')
+            print('\n-x is set: blocks clients regardless of leeching status')
         if len(self.clients_list) > 0:
             print('\nClient names to block:')
             for client in self.clients_list:
