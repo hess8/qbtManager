@@ -114,7 +114,8 @@ class ClientFilter:
         watch_str = '{} {} {}'.format(peer['country'], file, peer['ip'])
         if watch_str not in self.watched:
             self.watched.append(watch_str)
-            print('{} Watched | {} | \t\t{} | \t\t{} | {} '.format(time_str, file.rjust(15), peer['country'].rjust(20),  peer['client'].rjust(25), peer['ip']))
+            wd = 20
+            print('{} Watched | {} | {} | {} | {} '.format(time_str, file.ljust(wd), peer['country'].ljust(wd),  peer['client'].ljust(wd), peer['ip']))
     def output_blocked_IP(self,peer):
         time_str = time.strftime("[%Y-%m-%d %H:%M:%S]", time.localtime())
         self.n_banned += 1
@@ -147,7 +148,6 @@ class ClientFilter:
                     for country in self.countries_watch:
                         if country in peer['country'] or peer['client'] == '':
                             self.output_watched(peer,torrent)
-
 
             self.config_json['banned_IPs'] = banned_ip_str
             self.post_config(self.config_json)
