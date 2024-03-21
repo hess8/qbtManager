@@ -115,7 +115,7 @@ class ClientFilter:
         if watch_str not in self.watched:
             self.watched.append(watch_str)
             wd = 20
-            print('{} Watched | {} | {} | {} | {} '.format(time_str, file.ljust(wd), peer['country'].ljust(wd),  peer['client'].ljust(wd), peer['ip']))
+            print('{} Watched | {} | {} | {} | {} '.format(time_str, file[:wd].ljust(wd), peer['country'][:wd].ljust(wd),  peer['client'][:wd].ljust(wd), peer['ip']))
     def output_blocked_IP(self,peer):
         time_str = time.strftime("[%Y-%m-%d %H:%M:%S]", time.localtime())
         self.n_banned += 1
