@@ -65,14 +65,13 @@ def create_list(file,newlist):
 
 class ClientFilter:
 
-    def __init__(self, url='localhost', port=8080, https=False, unconditional=False):
+    def __init__(self, url='localhost', port=8080, https=False, watch_all = False, unconditional=False):
         if https:
             self.url_port = "https://" + url + ":" + str(port)
         else:
             self.url_port = "http://" + url + ":" + str(port)
-        self.unconditional = False
-        if unconditional:
-            self.unconditional = True
+        self.unconditional = unconditional
+        self.watch_all = watch_all
         self.torrents_to_check = {}
         self.clients_list = []
         self.countries_watch = []
@@ -115,7 +114,7 @@ class ClientFilter:
         if watch_str not in self.watched:
             self.watched.append(watch_str)
             wd = 20
-            print('{} Watched | {} | {} | {} | {} '.format(time_str, file[:wd].ljust(wd), peer['country'][:wd].ljust(wd),  peer['client'][:wd].ljust(wd), peer['ip']))
+            print('{} Watched | {} | {}% | {} | {} | {} '.format(time_str, file[:wd].ljust(wd), str(int(peer['progress'])).rjust(2), peer['country'][:wd].ljust(wd),  peer['client'][:wd].ljust(wd), peer['ip']))
     def output_blocked_IP(self,peer):
         time_str = time.strftime("[%Y-%m-%d %H:%M:%S]", time.localtime())
         self.n_banned += 1
@@ -126,6 +125,7 @@ class ClientFilter:
         """
         Get all the connected peers using torrent hash list and ban the matched peer.
         """
+
         self.config_json = self.get_config()
         banned_ip_str = self.config_json["banned_IPs"]
         active_torrents = json.loads(_get_url(self.url_port + "/api/v2/torrents/info?filter=active"))
@@ -134,7 +134,17 @@ class ClientFilter:
                 peers = json.loads(self._get_peers_list(torrent['hash']))['peers']
                 for ip_port in peers:
                     peer = peers[ip_port]
+                    if peer['progress'] == 0: #to skip fleeting connections
+                        continue
                     ip = peer['ip']
+                    # if 'devel' in peer['client']:
+                    #     pass
+                    if self.watch_all:
+                        self.output_watched(peer, torrent)
+                    else:
+                        for country in self.countries_watch:
+                            if country in peer['country'] or peer['client'] == '':
+                                self.output_watched(peer,torrent)
                     for client in self.clients_list:
                         if client.lower() in peer['client'].lower() and ip not in banned_ip_str:
                             banned_ip_str += '\n'
@@ -145,9 +155,6 @@ class ClientFilter:
                             banned_ip_str += '\n'
                             banned_ip_str += ip
                             self.output_blocked_IP(peer)
-                    for country in self.countries_watch:
-                        if country in peer['country'] or peer['client'] == '':
-                            self.output_watched(peer,torrent)
 
             self.config_json['banned_IPs'] = banned_ip_str
             self.post_config(self.config_json)
@@ -175,16 +182,18 @@ class ClientFilter:
             elif int(clear_hours) > 1: digits = 1
             else: digits = 3
             print('clear time interval is {} hr'.format(round(clear_hours,digits)))
+        if self.watch_all:
+            print('\n-w is set: output a line for every peer')
+        elif len(self.countries_watch) > 0:
+            print('\nCountries to watch:')
+            for country in self.countries_watch:
+                print('\t{}'.format(country))
         if self.unconditional:
             print('\n-x is set: blocks clients regardless of leeching status')
         if len(self.clients_list) > 0:
             print('\nClient names to block:')
             for client in self.clients_list:
                 print('\t{}'.format(client))
-        if len(self.countries_watch) > 0:
-            print('\nCountries to watch:')
-            for country in self.countries_watch:
-                print('\t{}'.format(country))
         if len(self.countries_block) > 0:
             print('\nCountries to block:')
             for country in self.countries_block:
@@ -230,9 +239,11 @@ if __name__ == '__main__':
                         help='use https protocol. Default=http')
     parser.add_argument('-c', default=None, type=float,
                         help='time interval to clear torrents list in hours (decimal OK). Default=None')
+    parser.add_argument('-w', default=False, action="store_true",
+                        help='watch all peers (output to sdtout)')
     parser.add_argument('-x', default=False, action="store_true",
                         help='blocks clients unconditionally regardless of leeching status')
 
     config = parser.parse_args()
-    f = ClientFilter(url=config.u, port=config.p, https=config.s, unconditional=config.x)
+    f = ClientFilter(url=config.u, port=config.p, https=config.s, watch_all=config.w, unconditional=config.x)
     f.loop(filter_time_cycle=config.t, clear_hours=config.c)

@@ -2,5 +2,7 @@ Thunder
 XL0012
 Xunlei
 danda
-anacrolix/torrent (devel)
+anacrolix
+devel
 dt/torrent
+unknown

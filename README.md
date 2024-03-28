@@ -25,6 +25,7 @@ A python script to manage qBittorrent downloads.  Blocks IP addresses by client 
 * `-t`: time interval between filter checks, default =`10` seconds.
 * `-c`: optional time interval to clear "Banned IP Addresses", in hours, default=`None`.
 * `-s`: use https to connect webui.
+* `-w`: watch all peers (outputs a line to stdout: file, country, client name, IP address)
 * `-x`: ban clients in the client and country lists always, regardless of leeching status
 
 ## Clearing "Banned IP Addresses" list
