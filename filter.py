@@ -110,11 +110,20 @@ class ClientFilter:
     def output_watched(self,peer,torrent):
         time_str = time.strftime("[%Y-%m-%d %H:%M:%S]", time.localtime())
         file = os.path.split(torrent['content_path'])[1]
-        watch_str = '{} {} {}'.format(peer['country'], file, peer['ip'])
+        progr = peer['progress']
+        if progr < 25:
+            progress_str = '0-25'
+        elif progr < 50:
+            progress_str = '25-50'
+        elif progr < 75:
+            progress_str = '50-75'
+        else:
+            progress_str = '75-100'
+        watch_str = '{} {} {} {}'.format(peer['country'], file, peer['ip'], progress_str)
         if watch_str not in self.watched:
             self.watched.append(watch_str)
             wd = 20
-            print('{} Watched | {} | {}% | {} | {} | {} '.format(time_str, file[:wd].ljust(wd), str(int(peer['progress'])).rjust(2), peer['country'][:wd].ljust(wd),  peer['client'][:wd].ljust(wd), peer['ip']))
+            print('{} Watched | {} | {}% | {} | {} | {} '.format(time_str, file[:wd].ljust(wd), progress_str.rjust(5), peer['country'][:wd].ljust(wd),  peer['client'][:wd].ljust(wd), peer['ip']))
     def output_blocked_IP(self,peer):
         time_str = time.strftime("[%Y-%m-%d %H:%M:%S]", time.localtime())
         self.n_banned += 1
