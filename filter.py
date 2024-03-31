@@ -155,7 +155,8 @@ class ClientFilter:
                             if country in peer['country'] or peer['client'] == '':
                                 self.output_watched(peer,torrent)
                     for client in self.clients_list:
-                        if (client.lower() in peer['client'].lower() or client == 'Empty') and ip not in banned_ip_str:
+                        if (client.lower() in peer['client'].lower() or (client == 'Empty' and peer['client'] == '')) \
+                                and ip not in banned_ip_str:
                             banned_ip_str += '\n'
                             banned_ip_str += ip
                             self.output_blocked_IP(peer)
