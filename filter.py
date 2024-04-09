@@ -1,7 +1,4 @@
 """
-This script is designed to ban leeches who do not upload
-their files, such as '-XL0012-' aka '迅雷' in Chinese.
-
 The API documents referred to in this URL:
 https://github.com/qbittorrent/qBittorrent/wiki/Web-API-Documentation#set-application-preferences
 https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)
@@ -119,15 +116,23 @@ class ClientFilter:
             progress_str = '50-75'
         else:
             progress_str = '75-100'
+        wd = 20
+        speed = peer['up_speed']
+        if speed < 1e6:
+            speedStr = '| {} Kb/s '.format(int(speed / 1e3)).rjust(3)
+        else:
+            speedStr = '| {} Mb/s' .format(round(speed / 1e6 ,1)).rjust(3)
+        output_str = '{} Watched | {} | {}% {}| {} | {} | {} '.format(time_str, file[:wd].ljust(wd), progress_str.rjust(6), speedStr,
+                                                           peer['country'][:wd].ljust(wd),
+                                                           peer['client'][:wd].ljust(wd), peer['ip'])
         watch_str = '{} {} {} {}'.format(peer['country'], file, peer['ip'], progress_str)
         if watch_str not in self.watched:
             self.watched.append(watch_str)
-            wd = 20
-            print('{} Watched | {} | {}% | {} | {} | {} '.format(time_str, file[:wd].ljust(wd), progress_str.rjust(6), peer['country'][:wd].ljust(wd),  peer['client'][:wd].ljust(wd), peer['ip']))
+            print(output_str)
     def output_blocked_IP(self,peer):
         time_str = time.strftime("[%Y-%m-%d %H:%M:%S]", time.localtime())
         self.n_banned += 1
-        print('{} Total: {} banned {} client name: {} country: {}'.format(time_str, self.n_banned, peer['ip'],
+        print('{} Total: {}. New banned {} client name: {} country: {}'.format(time_str, self.n_banned, peer['ip'],
                                                                           peer['client'], peer['country']))
 
     def filter(self):
@@ -146,8 +151,6 @@ class ClientFilter:
                     if peer['progress'] == 0: #to skip fleeting connections
                         continue
                     ip = peer['ip']
-                    # if 'devel' in peer['client']:
-                    #     pass
                     if self.watch_all:
                         self.output_watched(peer, torrent)
                     else:
