@@ -84,7 +84,7 @@ if __name__ == '__main__':
 
     if __name__ == '__main__':
         parser = argparse.ArgumentParser(description='Clears qbittorrent banned IP list.',
-                                         epilog='eg: python3 filter.py -u localhost -p 8080')
+                                         epilog='eg: python3 qbt_filter.py -u localhost -p 8080')
         parser.add_argument('-u', default='localhost',
                             help='url of the service without \'http://\' or \'https://\'')
         parser.add_argument('-p', default=8080, type=int,

@@ -237,7 +237,7 @@ class ClientFilter:
 if __name__ == '__main__':
     os.chdir(sys.path[0])
     parser = argparse.ArgumentParser(description='Ban bad peers in qBittorrent connections.',
-                                     epilog='eg: python3 filter.py -u localhost -p 8080 -t 10')
+                                     epilog='eg: python3 qbt_filter.py -u localhost -p 8080 -t 10')
     parser.add_argument('-u', default='localhost',
                         help='url of the service without \'http://\' or \'https://\'')
     parser.add_argument('-p', default=8080, type=int,
