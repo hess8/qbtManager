@@ -34,6 +34,6 @@ This is further development of Od1gree/btDownloadManager, which doesn't appear t
 ## Clearing "Banned IP Addresses" list
 Over time `qbt_filter.py` will add more and more entries to "Banned IP Addresses". If it is very long it might slow down your seeding.  You can choose to clear the list through btDownloadManager. Note that the script will unconditionally clean up the list, including anything that may have been manually added before!
 
-You can set `-c` the optional time interval between clearing to any numberof hours: `-c 24` will clear it once a day
+You can set `-c` the optional time interval between clearing to any number of hours: `-c 24` will clear it once a day
 
 If you want to clear the list once, run the script `clear_once.py`.  It needs only the flags `-u` and `-p`
