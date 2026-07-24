@@ -4,6 +4,9 @@ A python script to manage qBittorrent downloads.  Blocks IP addresses by client 
 ## Features
 * Block IP addresses based on country and/or client name
 * Blocking can be dependent on leeching
+ 
+## Credit
+This is further development of Od1gree/btDownloadManager, which doesn't appear to be maintained.
 
 ## Requirements
 * `python 3.6`
@@ -34,6 +37,3 @@ Over time `qbt_filter.py` will add more and more entries to "Banned IP Addresses
 You can set `-c` the optional time interval between clearing to any numberof hours: `-c 24` will clear it once a day
 
 If you want to clear the list once, run the script `clear_once.py`.  It needs only the flags `-u` and `-p`
-
-## Credit
-This is further development of Od1gree/btDownloadManager, which doesn't appear to be maintained.
