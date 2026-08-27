@@ -143,8 +143,8 @@ class ClientFilter:
                 peers = json.loads(self._get_peers_list(torrent['hash']))['peers']
                 for ip_port in peers:
                     peer = peers[ip_port]
-                    if peer['progress'] == 0: #to skip fleeting connections
-                        continue
+                    # if peer['progress'] == 0: #to skip fleeting connections
+                    #     continue
                     ip = peer['ip']
                     # if 'devel' in peer['client']:
                     #     pass
